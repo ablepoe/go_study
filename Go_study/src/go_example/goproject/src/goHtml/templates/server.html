@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+var ws;
+function init() {
+   console.log("server.html init");
+   if (ws != null) {
+     ws.close();
+     ws = null;
+   }
+   var path = document.getElementById("path").value;
+   var div = document.getElementById("msg");
+   ws = new WebSocket("ws://localhost:9999/wssocket");
+
+   ws.onopen = function () {
+      div.innerText = "Path "+path+" opened\n" + div.innerText;
+   };
+   ws.onmessage = function (e) {
+      div.innerText = "Path "+path+" msg:" + e.data + "\n" + div.innerText;
+   };
+   ws.onclose = function (e) {
+      div.innerText = "Path "+path+" closed\n" + div.innerText;
+   };
+   console.log("inited");
+   div.innerText = "Path "+path+" init\n" + div.innerText;
+};
+function send() {
+   console.log("send");
+   var m = document.msgform.message.value;
+   console.log("send:" + m);
+   ws.send(m);
+   return false;
+};
+</script>
+<body onLoad="init();">
+<form name="msgform" action="#" onsubmit="return send();">
+<select onchange="init()" name="path" id="path">
+<option value="/option1">/1</option>
+<option value="/option2">/2</option>
+</select>
+<input type="text" name="message" size="80" value="">
+<!--<input type="file" name="file" >-->
+<input type="submit" value="send">
+</form>
+<div id="msg"></div>
+</html>

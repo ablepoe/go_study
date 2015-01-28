@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <Web ListenAddress=":80" WebRoot="www">
+      <MainPage HomePage="index.html" E404Page="404.html"></MainPage>
+  </Web>

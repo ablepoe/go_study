@@ -1,0 +1,47 @@
+package main
+
+import "fmt"
+import "io/ioutil"
+import "os/exec"
+
+func main() {
+
+	// 我们从一个简单的命令开始，这个命令不需要任何参数
+	// 或者输入，仅仅向stdout输出一些信息。`exec.Command`
+	// 函数创建了一个代表外部进程的对象
+	dateCmd := exec.Command("date")
+
+	// `Output`是另一个运行命令时用来处理信息的函数，这个
+	// 函数等待命令结束，然后收集命令输出。如果没有错误发
+	// 生的话，`dateOut`将保存date的信息
+	dateOut, err := dateCmd.Output()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("> date")
+	fmt.Println(string(dateOut))
+
+	// 下面我们看一个需要从stdin输入数据的命令，我们将
+	// 数据输入传给外部进程的stdin，然后从它输出到stdout
+	// 的运行结果收集信息
+	grepCmd := exec.Command("grep", "hello")
+
+	// 这里我们显式地获取input/output管道，启动进程，
+	// 向进程写入数据，然后读取输出结果，最后等待进程结束
+	grepIn, _ := grepCmd.StdinPipe()
+	grepOut, _ := grepCmd.StdoutPipe()
+	grepCmd.Start()
+	grepIn.Write([]byte("hello grep\nello goodbye grep\n"))
+	//grepIn.Write([]byte("hello goodbye grep\n"))
+	//grepIn.Write([]byte("hello goodbye grep\n"))
+	grepIn.Close()
+	grepBytes, _ := ioutil.ReadAll(grepOut)
+	grepCmd.Wait()
+
+	// 在上面的例子中，我们忽略了错误检测，但是你一样可以
+	// 使用`if err!=nil`模式来进行处理。另外我们仅仅收集了
+	// `StdoutPipe`的结果，同时你也可以用一样的方法来收集
+	// `StderrPipe`的结果
+	fmt.Println("> grep hello")
+	fmt.Println(string(grepBytes))
+}
